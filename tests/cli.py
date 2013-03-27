@@ -7,6 +7,8 @@ import tests
 datadir = os.path.join(os.path.dirname(__file__), "data")
 basicdb = os.path.join(datadir, "basic.db")
 unknowndb = os.path.join(datadir, "unknown_keys.db")
+rhythmbox_xml = os.path.join(datadir, "rhythmdb.xml")
+rhythmbox_scratch_input = os.path.join(datadir, "rhythmbox_sync.db")
 
 
 class Cli(unittest.TestCase):
@@ -31,3 +33,15 @@ class Cli(unittest.TestCase):
 
         out = tests.clicomm("scratchlivedb-tool --debug %s" % unknowndb)
         self.assertTrue("Unknown type for key 'zzzz'" in out)
+
+
+    def testSyncRhythmbox(self):
+        """
+        Basic test for rhythmbox sync, make sure we see expected output
+        """
+        out = tests.clicomm("scratchlivedb-tool --dry-run "
+                            "--sync-rhythmbox --rhythmdb %s %s" %
+                            (rhythmbox_xml, rhythmbox_scratch_input))
+
+        self.assertTrue("Changing timeadded:  Armored_Core/Armored_" in out)
+        self.assertTrue("Removing from DB:    Orb/Orb_-_Adv")

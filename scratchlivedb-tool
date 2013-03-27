@@ -17,12 +17,22 @@
 
 import logging
 import optparse
+import os
 import sys
 
 import scratchlivedb
 
 log = logging.getLogger("scratchlivedb")
 log.setLevel(logging.DEBUG)
+
+
+###################
+# Utility methods #
+###################
+
+def fail(msg):
+    print >> sys.stderr, "ERROR: %s" % msg
+    sys.exit(1)
 
 
 ######################
@@ -56,6 +66,19 @@ def parse_options():
     parser.add_option("--debug", action="store_true",
                       help="Print debug output to stderr")
 
+    actg = optparse.OptionGroup(parser, "Actions")
+    actg.add_option("--sync-rhythmbox", action="store_true",
+                    help=("Sync DB with rhythmbox library."
+                          "Only scratch DB is altered. Currently this only "
+                          "removes missing files and syncs timeadded value."))
+    actg.add_option("--rhythmdb", help=optparse.SUPPRESS_HELP)
+
+    actg.add_option("--outfile", default="./out.db",
+                    help="New DB file to write (default=%default)")
+    actg.add_option("--dry-run", action="store_true",
+                    help="Don't save any changes")
+    parser.add_option_group(actg)
+
     options, args = parser.parse_args()
     if len(args) < 1:
         parser.error("Must specify a db file")
@@ -69,8 +92,27 @@ def main():
     options, dbfile = parse_options()
     setup_logging(options.debug)
 
+    if os.path.exists(options.outfile):
+        fail("outfile=%s already exists" % options.outfile)
+
     print "Parsing database: %s" % dbfile
-    scratchlivedb.ScratchDatabase(dbfile)
+    db = scratchlivedb.ScratchDatabase(dbfile)
+
+    sync = None
+    if options.sync_rhythmbox:
+        print "Parsing rhythmbox DB"
+        sync = scratchlivedb.SyncRhythmbox(options.rhythmdb)
+
+    if sync:
+        sync.sync(db)
+    else:
+        print "No action selected, nothing to do."
+        return 0
+
+    print "Writing %s%s" % (options.outfile, options.dry_run and
+                            " (dry)" or "")
+    if not options.dry_run:
+        file(options.outfile, "w").write(db.get_final_content())
 
     return 0
 
