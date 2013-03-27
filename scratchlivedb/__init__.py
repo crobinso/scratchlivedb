@@ -28,7 +28,7 @@ _seen = []
 # Utility functions #
 #####################
 
-def parse_cstring(content):
+def _parse_cstring(content):
     """
     From the passed string, find the nearest \0 byte and return everything
     before it
@@ -43,7 +43,7 @@ def parse_cstring(content):
     return ret
 
 
-def int2hexbin(origint):
+def _int2hexbin(origint):
     hexstr = "%08X" % origint
     ret = ""
 
@@ -56,7 +56,7 @@ def int2hexbin(origint):
     return ret
 
 
-def hexbin2int(content):
+def _hexbin2int(content):
     """
     Parse an hex string of size 'length' and convert to int
     """
@@ -69,7 +69,7 @@ def hexbin2int(content):
     return val
 
 
-def make_serato_utf16(orig):
+def _make_utf16(orig):
     """
     Convert the passed string 'orig' to serato UTF16 format
     """
@@ -79,7 +79,7 @@ def make_serato_utf16(orig):
     return new
 
 
-def parse_serato_utf16(data):
+def _parse_utf16(data):
     """
     Convert serato utf16 format to a regular string
     """
@@ -91,7 +91,7 @@ def parse_serato_utf16(data):
     return ret
 
 
-def match_string(content, matchstr):
+def _match_string(content, matchstr):
     """
     Make sure the value starting 'content' is 'matchstr'
     """
@@ -105,14 +105,14 @@ def match_string(content, matchstr):
 # Class property builders #
 ###########################
 
-TYPE_STR = 1
-TYPE_UTFSTR = 2
-TYPE_INT1 = 3
-TYPE_INT4 = 4
-TYPE_CHAR = 5
+(TYPE_STR,
+ TYPE_UTFSTR,
+ TYPE_INT1,
+ TYPE_INT4,
+ TYPE_CHAR) = range(1, 6)
 
 
-def key_to_type(key):
+def _key_to_type(key):
     if key.startswith("u"):
         return TYPE_INT4
     if key.startswith("b"):
@@ -124,19 +124,19 @@ def key_to_type(key):
     raise RuntimeError("Unknown type for key '%s'" % key)
 
 
-def get_converter(key, rawval, valtype=None):
-    valtype = valtype or key_to_type(key)
+def _get_converter(key, rawval, valtype=None):
+    valtype = valtype or _key_to_type(key)
 
     if valtype == TYPE_STR:
         return rawval
     if valtype == TYPE_UTFSTR:
-        return parse_serato_utf16(rawval)
+        return _parse_utf16(rawval)
     if valtype == TYPE_INT1:
         return ord(rawval)
     if valtype == TYPE_INT4:
-        return hexbin2int(rawval)
+        return _hexbin2int(rawval)
     if valtype == TYPE_CHAR:
-        return hexbin2int(rawval)
+        return _hexbin2int(rawval)
     raise RuntimeError("Unknown property type %s" % valtype)
 
 
@@ -144,13 +144,13 @@ def _set_field_helper(self, key, valtype, rawval):
     if valtype == TYPE_STR:
         setval = rawval
     elif valtype == TYPE_UTFSTR:
-        setval = make_serato_utf16(rawval)
+        setval = _make_utf16(rawval)
     elif valtype == TYPE_INT1:
         setval = int(rawval)
     elif valtype == TYPE_INT4:
-        setval = int2hexbin(int(rawval))
+        setval = _int2hexbin(int(rawval))
     elif valtype == TYPE_CHAR:
-        setval = int2hexbin(int(rawval))
+        setval = _int2hexbin(int(rawval))
     else:
         raise RuntimeError("Unknown property type %s" % valtype)
 
@@ -164,7 +164,7 @@ def _get_field_helper(self, key, valtype):
     if rawval is None:
         return None
 
-    return get_converter(key, rawval, valtype)
+    return _get_converter(key, rawval, valtype)
 
 
 def _property_helper(key, valtype):
@@ -176,15 +176,11 @@ def _property_helper(key, valtype):
     return property(getter, setter)
 
 
-##################
-# Public classes #
-##################
+###################
+# Private classes #
+###################
 
-class ScratchParseError(Exception):
-    pass
-
-
-class ScratchFileHeader(object):
+class _ScratchFileHeader(object):
     """
     Parse file header format. Basically is
 
@@ -197,21 +193,21 @@ class ScratchFileHeader(object):
         self._parse(content)
 
     def _parse(self, content):
-        if parse_cstring(content) != "vrsn":
+        if _parse_cstring(content) != "vrsn":
             raise ScratchParseError("Header did not have expected prefix")
         # Strip out next \0
-        parse_cstring(content)
+        _parse_cstring(content)
 
-        match_string(content, make_serato_utf16(self.version))
-        match_string(content, make_serato_utf16(self.type))
+        _match_string(content, _make_utf16(self.version))
+        _match_string(content, _make_utf16(self.type))
 
     def get_final_content(self):
-        ret = "vrsn\0\0%s%s" % (make_serato_utf16(self.version),
-                                make_serato_utf16(self.type))
+        ret = "vrsn\0\0%s%s" % (_make_utf16(self.version),
+                                _make_utf16(self.type))
         return ret
 
 
-class ScratchFileEntry(object):
+class _ScratchFileEntry(object):
     """
     Parse a track entry from a crate/database file
 
@@ -348,7 +344,7 @@ class ScratchFileEntry(object):
         def parse_field(c):
             name = c.read(4)
             rawlen = c.read(4)
-            length = hexbin2int(rawlen)
+            length = _hexbin2int(rawlen)
             data = c.read(length)
             if len(data) != length:
                 raise RuntimeError("didn't read expected data length "
@@ -380,12 +376,12 @@ class ScratchFileEntry(object):
         field_content = ""
         for key in self.rawkeys:
             data = self.rawdict[key]
-            field_content += key + int2hexbin(len(data)) + data
+            field_content += key + _int2hexbin(len(data)) + data
 
-        return self.name + int2hexbin(len(field_content)) + field_content
+        return self.name + _int2hexbin(len(field_content)) + field_content
 
 
-class ScratchFile(object):
+class _ScratchFile(object):
     """
     Base class for all serato files
     """
@@ -393,7 +389,7 @@ class ScratchFile(object):
         self.filename = filename
         self.content = io.BufferedReader(io.BytesIO(file(filename).read()))
 
-        self.header = ScratchFileHeader(self.content, version, ftype)
+        self.header = _ScratchFileHeader(self.content, version, ftype)
         self.entries = self._parse_entries()
 
     def _parse_entries(self):
@@ -402,7 +398,7 @@ class ScratchFile(object):
             if self.content.peek(1) == "":
                 break
 
-            entry = ScratchFileEntry(content=self.content)
+            entry = _ScratchFileEntry(content=self.content)
             entries.append(entry)
 
         return entries
@@ -415,20 +411,28 @@ class ScratchFile(object):
         return self.header.get_final_content() + entry_content
 
 
-class ScratchCrateFile(ScratchFile):
+##############
+# Public API #
+##############
+
+class ScratchParseError(Exception):
+    pass
+
+
+class ScratchCrateFile(_ScratchFile):
     """
     Represents a serato crate file
     """
     def __init__(self, filename):
-        ScratchFile.__init__(self, filename,
+        _ScratchFile.__init__(self, filename,
                             "81.0", "/Serato ScratchLive Crate")
 
 
-class ScratchDatabase(ScratchFile):
+class ScratchDatabase(_ScratchFile):
     """
     Represents a "database V2" serato file, which contains the music
     library info
     """
     def __init__(self, filename):
-        ScratchFile.__init__(self, filename,
+        _ScratchFile.__init__(self, filename,
                             "@2.0", "/Serato Scratch LIVE Database")
