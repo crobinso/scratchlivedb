@@ -56,3 +56,27 @@ class Misc(unittest.TestCase):
         db.entries = []
         self.assertTrue(db.get_final_content() == rawempty)
         self.assertTrue(empty.get_final_content() == rawempty)
+
+    def testDBDocString(self):
+        """
+        This is a weird one, but it's for my own sanity. Make sure
+        the DB doc string and DB properties are in sync.
+        """
+        db = scratchlivedb.ScratchDatabase(basicdb)
+        doc = db.entries[0].__doc__
+
+        # pylint: disable=W0212
+        # Ignore 'Access to protected member'
+        rawkeys = scratchlivedb._seen[:]
+        # pylint: enable=W0212
+
+        dockeys = []
+        for line in doc.splitlines():
+            line = line.strip("\n").strip()
+            if line[4:6] != " :":
+                continue
+            dockeys.append(line.split(" :")[0])
+
+        dockeys.sort()
+        rawkeys.sort()
+        self.assertEqual(dockeys, rawkeys)
