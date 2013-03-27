@@ -59,6 +59,8 @@ class PylintCommand(Command):
         pass
 
     def run(self):
+        files = "scratchlivedb/ tests/ scratchlivedb-tool"
+
         os.system("pylint "
             "--reports=n "
             "--output-format=colorized "
@@ -86,11 +88,10 @@ class PylintCommand(Command):
             # W1401: Anomalous backslash in string
             "--disable W1401 "
 
-            "scratchlivedb/ tests/*.py ")
+            + files)
 
         print "running pep8"
-        os.system("pep8 --format=pylint "
-            "scratchlivedb/ tests/ "
+        os.system("pep8 --format=pylint " + files +
             # E125: Continuation indent isn't different from next block
             # E126: continuation line over-indented for hanging indent
             # E128: Not indented for visual style
@@ -98,7 +99,7 @@ class PylintCommand(Command):
             # E203: Space before :
             # E221: Multiple spaces before operator
             # E303: Too many blank lines
-            "--ignore E125,E126,E128,E203,E221,E303")
+            " --ignore E125,E126,E128,E203,E221,E303")
 
 
 setup(
