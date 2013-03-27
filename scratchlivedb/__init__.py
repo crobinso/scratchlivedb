@@ -43,11 +43,11 @@ def _parse_cstring(content):
     return ret
 
 
-def _int2hexbin(origint):
+def _int2hexbin(origint, size=4):
     hexstr = "%08X" % origint
     ret = ""
 
-    for idx in (0, 2, 4, 6):
+    for idx in (0, 2, 4, 6)[:size]:
         idx = idx
         bytestr = hexstr[idx]
         bytestr += hexstr[idx + 1]
@@ -146,11 +146,11 @@ def _set_field_helper(self, key, valtype, rawval):
     elif valtype == TYPE_UTFSTR:
         setval = _make_utf16(rawval)
     elif valtype == TYPE_INT1:
-        setval = int(rawval)
+        setval = chr(rawval)
     elif valtype == TYPE_INT4:
         setval = _int2hexbin(int(rawval))
     elif valtype == TYPE_CHAR:
-        setval = _int2hexbin(int(rawval))
+        setval = _int2hexbin(int(rawval), 2)
     else:
         raise RuntimeError("Unknown property type %s" % valtype)
 
@@ -291,7 +291,6 @@ class _ScratchFileEntry(object):
         self.rawdict = {}
 
         self._parse(content)
-
 
     filedir             = _property_helper("pdir", TYPE_UTFSTR)
     filetrack           = _property_helper("ptrk", TYPE_UTFSTR)
