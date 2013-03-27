@@ -112,20 +112,8 @@ def _match_string(content, matchstr):
  TYPE_CHAR) = range(1, 6)
 
 
-def _key_to_type(key):
-    if key.startswith("u"):
-        return TYPE_INT4
-    if key.startswith("b"):
-        return TYPE_INT1
-    if key.startswith("s"):
-        return TYPE_CHAR
-    if key.startswith("p") or key.startswith("t"):
-        return TYPE_STR
-    raise RuntimeError("Unknown type for key '%s'" % key)
-
-
-def _get_converter(key, rawval, valtype=None):
-    valtype = valtype or _key_to_type(key)
+def _get_converter(key, rawval, valtype):
+    ignore = key
 
     if valtype == TYPE_STR:
         return rawval
