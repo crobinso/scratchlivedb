@@ -88,6 +88,7 @@ class PylintCommand(Command):
 
             "scratchlivedb/ tests/*.py ")
 
+        print "running pep8"
         os.system("pep8 --format=pylint "
             "scratchlivedb/ tests/ "
             # E125: Continuation indent isn't different from next block

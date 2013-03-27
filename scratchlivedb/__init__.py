@@ -154,13 +154,20 @@ def _set_field_helper(self, key, valtype, rawval):
     else:
         raise RuntimeError("Unknown property type %s" % valtype)
 
-    if key not in self.rawkeys:
-        self.rawkeys.append(key)
-    self.rawdict[key] = setval
+    # pylint: disable=W0212
+    # Ignore 'Access to protected member'
+    if key not in self._rawkeys:
+        self._rawkeys.append(key)
+    self._rawdict[key] = setval
+    # pylint: enable=W0212
 
 
 def _get_field_helper(self, key, valtype):
-    rawval = self.rawdict.get(key)
+    # pylint: disable=W0212
+    # Ignore 'Access to protected member'
+    rawval = self._rawdict.get(key)
+    # pylint: enable=W0212
+
     if rawval is None:
         return None
 
@@ -284,11 +291,10 @@ class _ScratchFileEntry(object):
     """
 
     def __init__(self, content=None):
-        self.name = None
-        self.data = None
-
-        self.rawkeys = []
-        self.rawdict = {}
+        self._name = None
+        self._rawdata = None
+        self._rawkeys = []
+        self._rawdict = {}
 
         self._parse(content)
 
@@ -350,11 +356,11 @@ class _ScratchFileEntry(object):
                                    "(%s != %s)" % (len(data), length))
             return name, data
 
-        self.name, self.data = parse_field(content)
-        if self.name != "otrk":
-            ScratchParseError("Unknown entry header '%s'" % self.name)
+        self._name, self._rawdata = parse_field(content)
+        if self._name != "otrk":
+            ScratchParseError("Unknown entry header '%s'" % self._name)
 
-        datastream = io.BufferedReader(io.BytesIO(self.data))
+        datastream = io.BufferedReader(io.BytesIO(self._rawdata))
         unknowns = []
         while True:
             if datastream.peek(1) == "":
@@ -362,22 +368,22 @@ class _ScratchFileEntry(object):
 
             name, data = parse_field(datastream)
 
-            if name in self.rawdict:
+            if name in self._rawdict:
                 raise RuntimeError("already found field for '%s'" % name)
 
             if name not in _seen:
                 unknowns.append((name, data))
 
-            self.rawkeys.append(name)
-            self.rawdict[name] = data
+            self._rawkeys.append(name)
+            self._rawdict[name] = data
 
     def get_final_content(self):
         field_content = ""
-        for key in self.rawkeys:
-            data = self.rawdict[key]
+        for key in self._rawkeys:
+            data = self._rawdict[key]
             field_content += key + _int2hexbin(len(data)) + data
 
-        return self.name + _int2hexbin(len(field_content)) + field_content
+        return self._name + _int2hexbin(len(field_content)) + field_content
 
 
 class _ScratchFile(object):
@@ -386,18 +392,18 @@ class _ScratchFile(object):
     """
     def __init__(self, filename, version, ftype):
         self.filename = filename
-        self.content = io.BufferedReader(io.BytesIO(file(filename).read()))
+        self._content = io.BufferedReader(io.BytesIO(file(filename).read()))
 
-        self.header = _ScratchFileHeader(self.content, version, ftype)
+        self.header = _ScratchFileHeader(self._content, version, ftype)
         self.entries = self._parse_entries()
 
     def _parse_entries(self):
         entries = []
         while True:
-            if self.content.peek(1) == "":
+            if self._content.peek(1) == "":
                 break
 
-            entry = _ScratchFileEntry(content=self.content)
+            entry = _ScratchFileEntry(content=self._content)
             entries.append(entry)
 
         return entries
