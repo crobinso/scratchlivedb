@@ -15,10 +15,34 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA.
 
+import logging
 import optparse
 import sys
 
 import scratchlivedb
+
+log = logging.getLogger("scratchlivedb")
+log.setLevel(logging.DEBUG)
+
+
+######################
+# Functional helpers #
+######################
+
+def setup_logging(debug):
+    handler = logging.StreamHandler(sys.stderr)
+    if debug:
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter(
+            "%(levelname)-6s (%(module)s:%(lineno)d): %(message)s")
+    else:
+        handler.setLevel(logging.WARN)
+        formatter = logging.Formatter("%(levelname)-6s %(message)s")
+
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+
+    log.debug("Launched with command line: %s", " ".join(sys.argv))
 
 
 ###################
@@ -28,6 +52,9 @@ import scratchlivedb
 def parse_options():
     parser = optparse.OptionParser(usage="%prog DBFILE",
                 description="Tool for manipulating Scratch Live DB files")
+
+    parser.add_option("--debug", action="store_true",
+                      help="Print debug output to stderr")
 
     options, args = parser.parse_args()
     if len(args) < 1:
@@ -40,7 +67,7 @@ def parse_options():
 
 def main():
     options, dbfile = parse_options()
-    ignore = options
+    setup_logging(options.debug)
 
     print "Parsing database: %s" % dbfile
     scratchlivedb.ScratchDatabase(dbfile)

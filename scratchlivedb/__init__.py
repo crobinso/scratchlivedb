@@ -15,13 +15,74 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA.
 
+import io
+import logging
 import os
 import sys
-import io
-import datetime
-import time
+
+from scratchlivedb.unknownentry import UnknownEntryTracker
 
 _seen = []
+log = logging.getLogger("scratchlivedb")
+
+
+#################
+# Debug helpers #
+#################
+
+# If we see a new file entry field in the serato database, this stuff helps
+# figure out what it's purpose is.
+_unknowns = UnknownEntryTracker()
+
+
+def _make_unknown_str(entry, maxprint=None, dups=1):
+    """
+    Build a string listing some of the seen values which should
+    help determine what the key actually does
+    """
+    if maxprint is None:
+        maxprint = len(entry.values)
+    keys = entry.values.keys()[:maxprint]
+
+    try:
+        valtype = _key_to_type(entry.key)
+    except Exception, e:
+        log.debug(e)
+        valtype = None
+
+    ret = "Unknown type: %s\n" % entry.key
+    for val in keys:
+        files = sorted(entry.values[val])
+        msg = ""
+        idx = 0
+        for idx in range(min(len(files), dups)):
+            f = str(files[idx])
+            if msg:
+                msg += "\n"
+            msg += "  %-45s" % f[-min(len(f), 45):]
+
+        if valtype is not None:
+            converted_val = _get_converter(entry.key, val, valtype)
+        else:
+            converted_val = repr(val)
+
+        msg += " %-20s : %s" % ("(and %s others)" % (len(files) - idx - 1),
+                                converted_val)
+        ret += msg + "\n"
+
+    return ret + "\n"
+
+
+def _log_unknowns():
+    keys = _unknowns.unknowns.keys()
+    keys.sort()
+
+    if keys:
+        log.warn("Unknown keys encountered: %s", keys)
+        log.warn("See debug output for details")
+
+    for key in keys:
+        log.debug(_make_unknown_str(_unknowns.unknowns[key], 20, dups=20))
 
 
 #####################
@@ -110,6 +171,18 @@ def _match_string(content, matchstr):
  TYPE_INT1,
  TYPE_INT4,
  TYPE_CHAR) = range(1, 6)
+
+
+def _key_to_type(key):
+    if key.startswith("u"):
+        return TYPE_INT4
+    if key.startswith("b"):
+        return TYPE_INT1
+    if key.startswith("s"):
+        return TYPE_CHAR
+    if key.startswith("p") or key.startswith("t"):
+        return TYPE_STR
+    raise RuntimeError("Unknown type for key '%s'" % key)
 
 
 def _get_converter(key, rawval, valtype):
@@ -365,6 +438,9 @@ class _ScratchFileEntry(object):
             self._rawkeys.append(name)
             self._rawdict[name] = data
 
+        for name, data in unknowns:
+            _unknowns.track_unknown(self.filebase, name, data)
+
     def get_final_content(self):
         field_content = ""
         for key in self._rawkeys:
@@ -384,6 +460,11 @@ class _ScratchFile(object):
 
         self.header = _ScratchFileHeader(self._content, version, ftype)
         self.entries = self._parse_entries()
+
+        try:
+            _log_unknowns()
+        except Exception, e:
+            log.debug("Error printing unknown values: %s", e)
 
     def _parse_entries(self):
         entries = []
