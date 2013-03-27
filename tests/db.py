@@ -67,7 +67,7 @@ class Misc(unittest.TestCase):
 
         # pylint: disable=W0212
         # Ignore 'Access to protected member'
-        rawkeys = scratchlivedb._seen[:]
+        rawkeys = scratchlivedb.scratchdb._seen[:]
         # pylint: enable=W0212
 
         dockeys = []
