@@ -6,6 +6,7 @@ import scratchlivedb
 
 datadir = os.path.join(os.path.dirname(__file__), "data")
 basicdb = os.path.join(datadir, "basic.db")
+emptydb = os.path.join(datadir, "empty.db")
 
 
 def get_properties(obj):
@@ -43,3 +44,15 @@ class Misc(unittest.TestCase):
                 setattr(entry, propname, val)
 
         self.assertTrue(db.get_final_content() == file(basicdb).read())
+
+    def testEmptyDB(self):
+        """
+        Empty the DB, compare it, make sure it parses correctly
+        """
+        db = scratchlivedb.ScratchDatabase(basicdb)
+        empty = scratchlivedb.ScratchDatabase(emptydb)
+        rawempty = file(emptydb).read()
+
+        db.entries = []
+        self.assertTrue(db.get_final_content() == rawempty)
+        self.assertTrue(empty.get_final_content() == rawempty)
