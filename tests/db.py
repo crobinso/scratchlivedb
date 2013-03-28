@@ -80,3 +80,20 @@ class Misc(unittest.TestCase):
         dockeys.sort()
         rawkeys.sort()
         self.assertEqual(dockeys, rawkeys)
+
+    def testAddToDB(self):
+        """
+        Test adding entries to a DB
+        """
+        basic = scratchlivedb.ScratchDatabase(basicdb)
+        empty = scratchlivedb.ScratchDatabase(emptydb)
+
+        empty.entries.append(basic.entries[10])
+        empty.entries.append(basic.entries[20])
+
+        newentry = empty.make_entry("foo/some/file/path")
+        newentry.tracktitle = "Hey a track title"
+        empty.entries.append(newentry)
+
+        self.assertTrue(empty.get_final_content(),
+                        file("tests/data/appended.db").read())
