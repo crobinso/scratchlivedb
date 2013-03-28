@@ -27,6 +27,13 @@ class Cli(unittest.TestCase):
         """
         Make sure unknown key detection works
         """
+        # Prevent unfinished crate support from interfering
+        # pylint: disable=W0212
+        # Ignore 'Access to protected member'
+        from scratchlivedb.scratchdb import _unknowns
+        _unknowns.unknowns = {}
+        # pylint: enable=W0212
+
         out = tests.clicomm("scratchlivedb-tool %s" % unknowndb)
         self.assertTrue(
                 "Unknown keys encountered: ['tzzz', 'uzzz', 'zzzz']" in out)
