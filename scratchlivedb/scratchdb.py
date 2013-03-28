@@ -533,7 +533,7 @@ class ScratchParseError(Exception):
     pass
 
 
-class ScratchCrateFile(_ScratchFile):
+class ScratchCrate(_ScratchFile):
     """
     Represents a serato crate file
     """
