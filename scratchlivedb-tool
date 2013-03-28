@@ -1,7 +1,10 @@
 #!/usr/bin/python
 
+import datetime
 import logging
 import optparse
+import os
+import shutil
 import sys
 
 import scratchlivedb
@@ -57,6 +60,8 @@ def parse_options():
                           "removes missing files and syncs timeadded value."))
     actg.add_option("--rhythmdb", help=optparse.SUPPRESS_HELP)
 
+    actg.add_option("--in-place", action="store_true",
+                    help="Overwrite database in place, making a backup first.")
     actg.add_option("--outfile", default="./out.db",
                     help="New DB file to write (default=%default)")
     actg.add_option("--dry-run", action="store_true",
@@ -90,10 +95,24 @@ def main():
         print "No action selected, nothing to do."
         return 0
 
-    print "Writing %s%s" % (options.outfile, options.dry_run and
-                            " (dry)" or "")
+    outfile = options.outfile
+    if options.in_place:
+        outfile = dbfile
+
+    drystr = options.dry_run and " (dry)" or ""
+    if os.path.exists(outfile):
+        date = str(datetime.datetime.today()).replace(" ", "_")
+        bak = outfile + "-%s.bak" % date
+        if os.path.exists(bak):
+            fail("Generated backup path already exists: %s" % bak)
+
+        print "Backing up to %s%s" % (bak, drystr)
+        if not options.dry_run:
+            shutil.copy(dbfile, bak)
+
+    print "Writing %s%s" % (options.outfile, drystr)
     if not options.dry_run:
-        file(options.outfile, "w").write(db.get_final_content())
+        file(outfile, "w").write(db.get_final_content())
 
     return 0
 
