@@ -24,6 +24,7 @@ from scratchlivedb.unknownentry import UnknownEntryTracker
 
 _seen = []
 log = logging.getLogger("scratchlivedb")
+log.addHandler(logging.NullHandler())
 
 
 #################
