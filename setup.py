@@ -59,9 +59,11 @@ class PylintCommand(Command):
         pass
 
     def run(self):
-        files = "scratchlivedb/ tests/ scratchlivedb-tool"
+        files = " scratchlivedb/ tests/ scratchlivedb-tool "
+        # Ignore stuff from scriptimports, it's just duplication
+        ignorefiles = " scratchlivedbtool.py "
 
-        os.system("pylint "
+        os.system("pylint " + files + "--ignore " + ignorefiles +
             "--reports=n "
             "--output-format=colorized "
             "--dummy-variables-rgx=\"dummy|ignore*|.*ignore\" "
@@ -86,9 +88,7 @@ class PylintCommand(Command):
             # R0201: Method could be a function
             "--disable R0201 "
             # W1401: Anomalous backslash in string
-            "--disable W1401 "
-
-            + files)
+            "--disable W1401 ")
 
         print "running pep8"
         os.system("pep8 --format=pylint " + files +

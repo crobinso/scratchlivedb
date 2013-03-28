@@ -17,7 +17,6 @@
 
 import logging
 import optparse
-import os
 import sys
 
 import scratchlivedb
@@ -91,9 +90,6 @@ def parse_options():
 def main():
     options, dbfile = parse_options()
     setup_logging(options.debug)
-
-    if os.path.exists(options.outfile):
-        fail("outfile=%s already exists" % options.outfile)
 
     print "Parsing database: %s" % dbfile
     db = scratchlivedb.ScratchDatabase(dbfile)

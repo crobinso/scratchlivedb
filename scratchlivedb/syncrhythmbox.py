@@ -89,6 +89,8 @@ class SyncRhythmbox(SyncBase):
 
                 entry.inttimeadded = newtime
 
-        for key in self._db:
-            #p("Adding to DB (XXX)", key)
-            pass
+        for key, timestamp in self._db.items():
+            p("Adding to DB", key)
+            newentry = db.make_entry(dbroot + key)
+            newentry.inttimeadded = timestamp
+            db.entries.append(newentry)

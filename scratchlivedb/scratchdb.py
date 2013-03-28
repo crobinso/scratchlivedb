@@ -17,6 +17,8 @@
 
 import io
 import logging
+import os
+import time
 
 from scratchlivedb.unknownentry import UnknownEntryTracker
 
@@ -349,13 +351,19 @@ class _ScratchFileEntry(object):
 
     """
 
-    def __init__(self, content=None):
+    def __init__(self, content=None, filename=None):
         self._name = None
         self._rawdata = None
         self._rawkeys = []
         self._rawdict = {}
 
-        self._parse(content)
+        if content is not None:
+            self._parse(content)
+        elif filename is not None:
+            self._set_stub_from_file(filename)
+        else:
+            raise RuntimeError("content or filename must be specified")
+
 
     filedir             = _property_helper("pdir", TYPE_UTFSTR)
     filetrack           = _property_helper("ptrk", TYPE_UTFSTR)
@@ -439,6 +447,34 @@ class _ScratchFileEntry(object):
         for name, data in unknowns:
             _unknowns.track_unknown(self.filebase, name, data)
 
+    def _set_stub_from_file(self, filename):
+        self._name = "otrk"
+
+        # Scratch Live obviously supports other formats, but I haven't
+        # tested any. Rather explicitly error than just wing it and have
+        # things silently fail
+        extension_list = ["mp3"]
+        ext = os.path.splitext(filename)[1].lower().strip(".")
+        if ext not in extension_list:
+            log.warn("%s extension '%s' not in tested extension list %s",
+                     filename, ext, extension_list)
+            if not ext:
+                log.debug("No file extension, assuming mp3")
+                ext = "mp3"
+
+        # This is the minimum required to get the file to appear in
+        # Scratch Live UI, 'rescan tags' will fill in the rest.
+        # And order is important, at least tracktype needs to be first!
+        self.tracktype = ext
+        self.inttimeadded = int(time.time())
+        self.inttimemodified = int(time.time())
+        self.filebase = filename
+
+
+    ##############
+    # Public API #
+    ##############
+
     def get_final_content(self):
         field_content = ""
         for key in self._rawkeys:
@@ -452,6 +488,11 @@ class _ScratchFile(object):
     """
     Base class for all serato files
     """
+
+    @staticmethod
+    def make_entry(filename):
+        return _ScratchFileEntry(filename=filename)
+
     def __init__(self, filename, version, ftype):
         self.filename = filename
         self._content = io.BufferedReader(io.BytesIO(file(filename).read()))
