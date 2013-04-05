@@ -103,6 +103,8 @@ def main():
     if os.path.exists(outfile):
         date = str(datetime.datetime.today()).replace(" ", "_")
         bak = outfile + "-%s.bak" % date
+        bak = bak.replace(" ", "_").replace(":", "_")
+
         if os.path.exists(bak):
             fail("Generated backup path already exists: %s" % bak)
 
