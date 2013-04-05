@@ -110,7 +110,7 @@ def main():
 
         print "Backing up to %s%s" % (bak, drystr)
         if not options.dry_run:
-            shutil.copy(dbfile, bak)
+            shutil.copyfile(dbfile, bak)
 
     print "Writing %s%s" % (outfile, drystr)
     if not options.dry_run:
