@@ -73,6 +73,16 @@ class SyncRhythmbox(SyncBase):
         def p(desc, key):
             print "%-20s %s" % (desc + ":", key)
 
+        def round_to_day(ctime):
+            """
+            Round ctime value down to midnight, so that slight variations
+            in times are all set to the same value, which helps us
+            sort in scratch live
+            """
+            fmt = "%Y-%m-%d"
+            strtime = datetime.datetime.fromtimestamp(int(ctime)).strftime(fmt)
+            return int(datetime.datetime.strptime(strtime, fmt).strftime("%s"))
+
         for entry in db.entries[:]:
             key = entry.filebase[len(dbroot):]
             if key not in self._db:
@@ -80,7 +90,7 @@ class SyncRhythmbox(SyncBase):
                 db.entries.remove(entry)
                 continue
 
-            newtime = self._db.pop(key)
+            newtime = round_to_day(self._db.pop(key))
             if newtime != entry.inttimeadded:
                 desc = "%s %s->%s" % (key,
                         datetime.datetime.fromtimestamp(entry.inttimeadded),
