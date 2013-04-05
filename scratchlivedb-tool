@@ -110,7 +110,7 @@ def main():
         if not options.dry_run:
             shutil.copy(dbfile, bak)
 
-    print "Writing %s%s" % (options.outfile, drystr)
+    print "Writing %s%s" % (outfile, drystr)
     if not options.dry_run:
         file(outfile, "w").write(db.get_final_content())
 
