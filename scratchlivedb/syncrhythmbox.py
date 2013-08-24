@@ -56,7 +56,7 @@ class SyncRhythmbox(SyncBase):
         source_base_dir = self._find_shared_root(db.keys()[:])
         log.debug("Found source_base_dir=%s", source_base_dir)
 
-        # Third pass, string source_base_dir from paths
+        # Third pass, strip source_base_dir from paths
         for key in db.keys():
             db[key[len(source_base_dir):]] = db.pop(key)
 
@@ -69,6 +69,7 @@ class SyncRhythmbox(SyncBase):
 
     def sync(self, db):
         dbroot = self._find_shared_root([e.filebase for e in db.entries])
+        log.debug("Found scratchlivedb base=%s" % dbroot)
 
         def p(desc, key):
             print "%-20s %s" % (desc + ":", key)
