@@ -23,9 +23,13 @@ class SyncBase(object):
 
         for key in paths:
             tmpbase = ret
+            logged = False
+
             while not key.startswith(tmpbase):
-                log.debug("key=%s doesn't start with base=%s, shrinking it",
-                          key, tmpbase)
+                if not logged:
+                    log.debug("key=%s doesn't start with base=%s, shrinking it",
+                              key, tmpbase)
+                    logged = True
                 tmpbase = tmpbase[:-1]
 
             ret = tmpbase
