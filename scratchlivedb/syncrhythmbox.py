@@ -10,10 +10,6 @@ from scratchlivedb.sync import SyncBase
 class SyncRhythmbox(SyncBase):
     """
     Pull music info from rhythmbox's DB.
-
-    Currently this only does:
-        - Sync inttimeadded timestamps
-        - Remove missing files from scratch DB
     """
     def __init__(self, *args, **kwargs):
         SyncBase.__init__(self, *args, **kwargs)
@@ -103,5 +99,5 @@ class SyncRhythmbox(SyncBase):
         for key, timestamp in self._db.items():
             p("Adding to DB", key)
             newentry = db.make_entry(dbroot + key)
-            newentry.inttimeadded = timestamp
+            newentry.inttimeadded = round_to_day(timestamp)
             db.entries.append(newentry)

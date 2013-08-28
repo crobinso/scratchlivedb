@@ -83,6 +83,8 @@ class PylintCommand(Command):
             "--disable C0111 "
             # W0603: Using the global statement
             "--disable W0603 "
+            # W0702: Bare exception type
+            "--disable W0702 "
             # W0703: Catching too general exception:
             "--disable W0703 "
             # I0012: Warn about pylint messages disabled in comments
