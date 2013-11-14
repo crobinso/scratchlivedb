@@ -40,5 +40,5 @@ class SyncBase(object):
     # Public API #
     ##############
 
-    def sync(self, db):
+    def sync(self, db, require_base=None):
         raise NotImplementedError("Must be implemented in subclass")

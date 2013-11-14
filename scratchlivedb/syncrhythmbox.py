@@ -63,9 +63,12 @@ class SyncRhythmbox(SyncBase):
     # Public API #
     ##############
 
-    def sync(self, db):
+    def sync(self, db, require_base=None):
         dbroot = self._find_shared_root([e.filebase for e in db.entries])
         log.debug("Found scratchlivedb base=%s" % dbroot)
+        if require_base is not None and dbroot != require_base:
+            raise RuntimeError("Required base '%s' doesn't match detected "
+                               "base '%s'" % (require_base, dbroot))
 
         def p(desc, key):
             print "%-20s %s" % (desc + ":", key)
