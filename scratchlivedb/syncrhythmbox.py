@@ -83,10 +83,15 @@ class SyncRhythmbox(SyncBase):
             strtime = datetime.datetime.fromtimestamp(int(ctime)).strftime(fmt)
             return int(datetime.datetime.strptime(strtime, fmt).strftime("%s"))
 
+        rmcount = 0
+        changecount =0
+        addcount = 0
+
         for entry in db.entries[:]:
             key = entry.filebase[len(dbroot):]
             if key not in self._db:
                 p("Removing from DB", key)
+                rmcount += 1
                 db.entries.remove(entry)
                 continue
 
@@ -95,12 +100,19 @@ class SyncRhythmbox(SyncBase):
                 desc = "%s %s->%s" % (key,
                         datetime.datetime.fromtimestamp(entry.inttimeadded),
                         datetime.datetime.fromtimestamp(newtime))
+                changecount += 1
                 p("Changing timeadded", desc)
 
                 entry.inttimeadded = newtime
 
         for key, timestamp in self._db.items():
+            addcount += 1
             p("Adding to DB", key)
             newentry = db.make_entry(dbroot + key)
             newentry.inttimeadded = round_to_day(timestamp)
             db.entries.append(newentry)
+
+        print
+        print "Total removed: %d" % rmcount
+        print "Total added:   %d" % addcount
+        print "Total changed: %d" % changecount
