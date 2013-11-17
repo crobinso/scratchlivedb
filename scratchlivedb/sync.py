@@ -27,8 +27,8 @@ class SyncBase(object):
 
             while not key.startswith(tmpbase):
                 if not logged:
-                    log.debug("key=%s doesn't start with base=%s, shrinking it",
-                              key, tmpbase)
+                    log.debug("key=%s doesn't start with base=%s, "
+                              "shrinking it", key, tmpbase)
                     logged = True
                 tmpbase = tmpbase[:-1]
 

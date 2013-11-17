@@ -69,7 +69,7 @@ class SyncRhythmbox(SyncBase):
 
     def sync(self, db, require_base=None):
         dbroot = self._find_shared_root([e.filebase for e in db.entries])
-        log.debug("Found scratchlivedb base=%s" % dbroot)
+        log.debug("Found scratchlivedb base=%s", dbroot)
         if require_base is not None and dbroot != require_base:
             raise RuntimeError("Required base '%s' doesn't match detected "
                                "base '%s'" % (require_base, dbroot))
@@ -88,7 +88,7 @@ class SyncRhythmbox(SyncBase):
             return int(datetime.datetime.strptime(strtime, fmt).strftime("%s"))
 
         rmcount = 0
-        changecount =0
+        changecount = 0
         addcount = 0
 
         for entry in db.entries[:]:
