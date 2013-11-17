@@ -46,6 +46,10 @@ class SyncRhythmbox(SyncBase):
                 raise RuntimeError("rhythmbox location didn't start with "
                                    "expected file:/// : '%s'" % location)
 
+            if (child.find("hidden") is not None and
+                child.find("hidden").text == "1"):
+                continue
+
             first_seen = int(child.find("first-seen").text)
             db[location[(len(prefix) - 1):]] = first_seen
 
