@@ -77,4 +77,4 @@ class Cli(unittest.TestCase):
 
         # Make sure running twice doesn't make any changes
         out = tests.clicomm(cmd)
-        self.assertTrue("Parsing rhythmbox DB\nBacking up to" in out)
+        self.assertTrue("Parsing rhythmbox DB\n\nTotal removed:" in out)
