@@ -10,7 +10,7 @@ track in the DB:
 
     db = scratchlivedb.ScratchDatabase("/path/to/my/database V2")
     for entry in db.entries:
-        print db.filebase
+        print entry.filebase
 
 
 scratchlivedb-tool
