@@ -107,7 +107,7 @@ def _int2hexbin(origint):
 
 def _hexbin2int(content):
     """
-    Parse an hex string of size 'length' and convert to int
+    Convert the passed hex binary string into its interger value
     """
     val = 0
 
@@ -125,19 +125,24 @@ def _make_slstr(orig):
     ustr = orig.decode("utf-8")
     new = ""
     for c in ustr:
-        new += "\0" + chr(ord(c))
+        hexstr = _int2hexbin(ord(c)).lstrip("\x00")
+        if len(hexstr) == 1:
+            hexstr = "\x00" + hexstr
+        new += hexstr
     return new
 
 
 def _parse_slstr(data):
     """
-    Convert serato string format to a regular string
+    Convert serato string format to a regular string. The format is
+    an array of 32bit integers representing unicode code points.
     """
     ret = unicode()
-    for c in data.split("\0"):
-        if c == "":
-            continue
-        ret += unichr(ord(c))
+    idx = 0
+    while idx < len(data):
+        cstr = data[idx:(idx + 2)]
+        ret += unichr(_hexbin2int(cstr))
+        idx += 2
     return ret.encode("utf-8")
 
 
