@@ -30,7 +30,7 @@ def _make_unknown_str(entry, maxprint=None, dups=1):
     keys = entry.values.keys()[:maxprint]
 
     try:
-        valtype = _key_to_type(entry.key)
+        valtype = _unknown_key_to_type(entry.key)
     except Exception, e:
         log.debug(e)
         valtype = None
@@ -158,7 +158,7 @@ def _match_string(content, matchstr):
  TYPE_CHAR) = range(1, 6)
 
 
-def _key_to_type(key):
+def _unknown_key_to_type(key):
     if key.startswith("u"):
         return TYPE_INT4
     if key.startswith("b"):
