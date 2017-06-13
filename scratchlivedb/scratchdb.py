@@ -151,7 +151,7 @@ def _match_string(content, matchstr):
 # Class property builders #
 ###########################
 
-(TYPE_STR,
+(TYPE_RAW,
  TYPE_UTFSTR,
  TYPE_INT1,
  TYPE_INT4,
@@ -166,14 +166,14 @@ def _unknown_key_to_type(key):
     if key.startswith("s"):
         return TYPE_CHAR
     if key.startswith("p") or key.startswith("t"):
-        return TYPE_STR
+        return TYPE_RAW
     raise RuntimeError("Unknown type for key '%s'" % key)
 
 
 def _get_converter(key, rawval, valtype):
     ignore = key
 
-    if valtype == TYPE_STR:
+    if valtype == TYPE_RAW:
         return rawval
     if valtype == TYPE_UTFSTR:
         return _parse_utf16(rawval)
@@ -187,7 +187,7 @@ def _get_converter(key, rawval, valtype):
 
 
 def _set_field_helper(self, key, valtype, rawval):
-    if valtype == TYPE_STR:
+    if valtype == TYPE_RAW:
         setval = rawval
     elif valtype == TYPE_UTFSTR:
         setval = _make_utf16(rawval)
