@@ -89,11 +89,14 @@ def _parse_cstring(content):
     return ret
 
 
-def _int2hexbin(origint, size=4):
+def _int2hexbin(origint):
+    """
+    Convert the passed integer into a 4 byte binary hex string
+    """
     hexstr = "%08X" % origint
     ret = ""
 
-    for idx in (0, 2, 4, 6)[:size]:
+    for idx in (0, 2, 4, 6):
         idx = idx
         bytestr = hexstr[idx]
         bytestr += hexstr[idx + 1]
@@ -197,7 +200,7 @@ def _set_field_helper(self, key, valtype, rawval):
     elif valtype == TYPE_INT4:
         setval = _int2hexbin(int(rawval))
     elif valtype == TYPE_CHAR:
-        setval = _int2hexbin(int(rawval), 2)
+        setval = _int2hexbin(int(rawval))[-2:]
     else:
         raise RuntimeError("Unknown property type %s" % valtype)
 
