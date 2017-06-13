@@ -117,24 +117,25 @@ def _hexbin2int(content):
 
 def _make_slstr(orig):
     """
-    Convert the passed string 'orig' to serato UTF16 format
+    Convert the passed string 'orig' to serato format
     """
+    ustr = orig.decode("utf-8")
     new = ""
-    for c in orig:
-        new += "\0" + c
+    for c in ustr:
+        new += "\0" + chr(ord(c))
     return new
 
 
 def _parse_slstr(data):
     """
-    Convert serato utf16 format to a regular string
+    Convert serato string format to a regular string
     """
-    ret = ""
-    for c in data:
-        if c == "" or c == "\0":
+    ret = unicode()
+    for c in data.split("\0"):
+        if c == "":
             continue
-        ret += c
-    return ret
+        ret += unichr(ord(c))
+    return ret.encode("utf-8")
 
 
 def _match_string(content, matchstr):
