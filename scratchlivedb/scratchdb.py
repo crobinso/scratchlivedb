@@ -115,7 +115,7 @@ def _hexbin2int(content):
     return val
 
 
-def _make_utf16(orig):
+def _make_slstr(orig):
     """
     Convert the passed string 'orig' to serato UTF16 format
     """
@@ -125,7 +125,7 @@ def _make_utf16(orig):
     return new
 
 
-def _parse_utf16(data):
+def _parse_slstr(data):
     """
     Convert serato utf16 format to a regular string
     """
@@ -152,7 +152,7 @@ def _match_string(content, matchstr):
 ###########################
 
 (TYPE_RAW,
- TYPE_UTFSTR,
+ TYPE_SLSTR,
  TYPE_INT1,
  TYPE_INT4,
  TYPE_CHAR) = range(1, 6)
@@ -175,8 +175,8 @@ def _get_converter(key, rawval, valtype):
 
     if valtype == TYPE_RAW:
         return rawval
-    if valtype == TYPE_UTFSTR:
-        return _parse_utf16(rawval)
+    if valtype == TYPE_SLSTR:
+        return _parse_slstr(rawval)
     if valtype == TYPE_INT1:
         return ord(rawval)
     if valtype == TYPE_INT4:
@@ -189,8 +189,8 @@ def _get_converter(key, rawval, valtype):
 def _set_field_helper(self, key, valtype, rawval):
     if valtype == TYPE_RAW:
         setval = rawval
-    elif valtype == TYPE_UTFSTR:
-        setval = _make_utf16(rawval)
+    elif valtype == TYPE_SLSTR:
+        setval = _make_slstr(rawval)
     elif valtype == TYPE_INT1:
         setval = chr(rawval)
     elif valtype == TYPE_INT4:
@@ -251,12 +251,12 @@ class _ScratchFileHeader(object):
         # Strip out next \0
         _parse_cstring(content)
 
-        _match_string(content, _make_utf16(self.version))
-        _match_string(content, _make_utf16(self.type))
+        _match_string(content, _make_slstr(self.version))
+        _match_string(content, _make_slstr(self.type))
 
     def get_final_content(self):
-        ret = "vrsn\0\0%s%s" % (_make_utf16(self.version),
-                                _make_utf16(self.type))
+        ret = "vrsn\0\0%s%s" % (_make_slstr(self.version),
+                                _make_slstr(self.type))
         return ret
 
 
@@ -350,29 +350,29 @@ class _ScratchFileEntry(object):
             raise RuntimeError("content or filename must be specified")
 
 
-    filedir             = _property_helper("pdir", TYPE_UTFSTR)
-    filetrack           = _property_helper("ptrk", TYPE_UTFSTR)
-    filebase            = _property_helper("pfil", TYPE_UTFSTR)
+    filedir             = _property_helper("pdir", TYPE_SLSTR)
+    filetrack           = _property_helper("ptrk", TYPE_SLSTR)
+    filebase            = _property_helper("pfil", TYPE_SLSTR)
 
-    trackadded          = _property_helper("tadd", TYPE_UTFSTR)
-    trackartist         = _property_helper("tart", TYPE_UTFSTR)
-    trackalbum          = _property_helper("talb", TYPE_UTFSTR)
-    trackbitrate        = _property_helper("tbit", TYPE_UTFSTR)
-    trackbpm            = _property_helper("tbpm", TYPE_UTFSTR)
-    trackcomposer       = _property_helper("tcmp", TYPE_UTFSTR)
-    trackcomment        = _property_helper("tcom", TYPE_UTFSTR)
-    trackcorrupt        = _property_helper("tcor", TYPE_UTFSTR)
-    trackgenre          = _property_helper("tgen", TYPE_UTFSTR)
-    trackgrouping       = _property_helper("tgrp", TYPE_UTFSTR)
-    trackkey            = _property_helper("tkey", TYPE_UTFSTR)
-    tracklabel          = _property_helper("tlbl", TYPE_UTFSTR)
-    tracklength         = _property_helper("tlen", TYPE_UTFSTR)
-    trackremixer        = _property_helper("trmx", TYPE_UTFSTR)
-    tracktitle          = _property_helper("tsng", TYPE_UTFSTR)
-    tracksize           = _property_helper("tsiz", TYPE_UTFSTR)
-    tracksamplerate     = _property_helper("tsmp", TYPE_UTFSTR)
-    tracktype           = _property_helper("ttyp", TYPE_UTFSTR)
-    trackyear           = _property_helper("ttyr", TYPE_UTFSTR)
+    trackadded          = _property_helper("tadd", TYPE_SLSTR)
+    trackartist         = _property_helper("tart", TYPE_SLSTR)
+    trackalbum          = _property_helper("talb", TYPE_SLSTR)
+    trackbitrate        = _property_helper("tbit", TYPE_SLSTR)
+    trackbpm            = _property_helper("tbpm", TYPE_SLSTR)
+    trackcomposer       = _property_helper("tcmp", TYPE_SLSTR)
+    trackcomment        = _property_helper("tcom", TYPE_SLSTR)
+    trackcorrupt        = _property_helper("tcor", TYPE_SLSTR)
+    trackgenre          = _property_helper("tgen", TYPE_SLSTR)
+    trackgrouping       = _property_helper("tgrp", TYPE_SLSTR)
+    trackkey            = _property_helper("tkey", TYPE_SLSTR)
+    tracklabel          = _property_helper("tlbl", TYPE_SLSTR)
+    tracklength         = _property_helper("tlen", TYPE_SLSTR)
+    trackremixer        = _property_helper("trmx", TYPE_SLSTR)
+    tracktitle          = _property_helper("tsng", TYPE_SLSTR)
+    tracksize           = _property_helper("tsiz", TYPE_SLSTR)
+    tracksamplerate     = _property_helper("tsmp", TYPE_SLSTR)
+    tracktype           = _property_helper("ttyp", TYPE_SLSTR)
+    trackyear           = _property_helper("ttyr", TYPE_SLSTR)
 
     boolmissing         = _property_helper("bmis", TYPE_INT1)
     boolcorrupt         = _property_helper("bcrt", TYPE_INT1)
