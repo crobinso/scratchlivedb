@@ -281,19 +281,18 @@ class _ScratchFileEntry(object):
     Finally is the data of the entry, which is 'length' bytes long
 
     The data section is just a list of fields which have the above format.
-    If the file is a crate file, each track has name==ptrk. If the
-    file is the must data base, each track has name==pfil
+    The known fields are:
 
-    Other entry types:
-
-    Boolean fields. Contain either binary 0 or 1
+    # boolean fields, contain either binary 0 or 1
     bcrt :  Track is corrupt/has invalid audio data
     bmis :  Track is missing
 
+    # path fields, stored as strings
     pdir :  file directory
     pfil :  file name for database file
     ptrk :  file name for crate file
 
+    # string fields
     tadd :  track date added
     talb :  track album name
     tart :  track artist
@@ -322,7 +321,7 @@ class _ScratchFileEntry(object):
                 0RGB.
     utkn :  Track number
 
-    Unknown values:
+    # Unknown values:
     bbgl :  UNKNOWN: All tracks are 0
     bhrt :  UNKNOWN: All tracks are 1, except missing tracks are 0. Like blop
     blop :  UNKNOWN: All tracks are 0, except missing tracks are 1. Like bhrt

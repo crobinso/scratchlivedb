@@ -29,7 +29,7 @@ Here's how I use it in my music org process:
 - Mount my windows _Serato_ folder at /mnt/laptop/serato
 - cd scratchlivedb.git
 - ./scratchlivedb-tool --sync-rhythmbox --in-place /mnt/laptop/serato/database\ V2
-- Backup stored in /mnt/laptop/serato is something went wrong
+- A backup library copy is stored in /mnt/laptop/serato if something went wrong
 - Run 'rescan tags' in Scratch Live to pick up all the tag values
 
 Yeah, convoluted, but for whatever reason Scratch Live likes to forget the
