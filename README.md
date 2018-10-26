@@ -63,4 +63,4 @@ Todo
 
 * Only tested on a linux machine
 
-* Haven't tested setup.py except for 'test' and 'pylint' subcommands
+* Haven't tested setup.py except for 'test' subcommand
