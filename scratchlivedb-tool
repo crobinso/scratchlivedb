@@ -1,10 +1,7 @@
 #!/usr/bin/python
 
-import datetime
 import logging
 import optparse
-import os
-import shutil
 import sys
 
 import scratchlivedb
@@ -47,30 +44,13 @@ def setup_logging(debug):
 ###################
 
 def parse_options():
-    parser = optparse.OptionParser(usage="%prog DBFILE",
-                description="Tool for manipulating Scratch Live DB files")
+    desc = "Command line tool for interacting with scratchlive databases"
+    parser = optparse.OptionParser(usage="%prog DBFILE", description=desc)
 
     parser.add_option("--debug", action="store_true",
                       help="Print debug output to stderr")
 
     actg = optparse.OptionGroup(parser, "Actions")
-    actg.add_option("--sync-rhythmbox", action="store_true",
-                    help=("Sync DB with rhythmbox library."
-                          "Only scratch DB is altered. Currently this only "
-                          "removes missing files and syncs timeadded value."))
-    actg.add_option("--rhythmdb", help=optparse.SUPPRESS_HELP)
-
-    actg.add_option("--in-place", action="store_true",
-                    help="Overwrite database in place, making a backup first.")
-    actg.add_option("--require-base",
-                    help="Require this string to be the base directory "
-                         "of every entry in the Scratch Live DB. Prevents "
-                         "an errant file on say the desktop that's added to "
-                         "the DB from messing up our sync logic.")
-    actg.add_option("--outfile", default="./out.db",
-                    help="New DB file to write (default=%default)")
-    actg.add_option("--dry-run", action="store_true",
-                    help="Don't save any changes")
     parser.add_option_group(actg)
 
     options, args = parser.parse_args()
@@ -87,40 +67,9 @@ def main():
     setup_logging(options.debug)
 
     print "Parsing database: %s" % dbfile
-    db = scratchlivedb.ScratchDatabase(dbfile)
+    scratchlivedb.ScratchDatabase(dbfile)
 
-    sync = None
-    if options.sync_rhythmbox:
-        print "Parsing rhythmbox DB"
-        sync = scratchlivedb.SyncRhythmbox(options.rhythmdb)
-
-    if sync:
-        sync.sync(db, require_base=options.require_base)
-    else:
-        print "No action selected, nothing to do."
-        return 0
-
-    outfile = options.outfile
-    if options.in_place:
-        outfile = dbfile
-
-    drystr = options.dry_run and " (dry)" or ""
-    if os.path.exists(outfile):
-        date = str(datetime.datetime.today()).replace(" ", "_")
-        bak = outfile + "-%s.bak" % date
-        bak = bak.replace(" ", "_").replace(":", "_")
-
-        if os.path.exists(bak):
-            fail("Generated backup path already exists: %s" % bak)
-
-        print "Backing up to %s%s" % (bak, drystr)
-        if not options.dry_run:
-            shutil.copyfile(dbfile, bak)
-
-    print "Writing %s%s" % (outfile, drystr)
-    if not options.dry_run:
-        file(outfile, "w").write(db.get_final_content())
-
+    print "No action selected, nothing to do."
     return 0
 
 
