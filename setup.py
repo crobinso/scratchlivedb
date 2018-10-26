@@ -19,7 +19,6 @@ class TestCommand(Command):
     def run(self):
         import coverage
 
-        omit = []
         cov = coverage.coverage(omit=["/*/tests/*"])
         cov.erase()
         cov.start()
@@ -35,7 +34,7 @@ class TestCommand(Command):
         if hasattr(unittest, "installHandler"):
             try:
                 unittest.installHandler()
-            except:
+            except Exception:
                 print "installHandler hack failed"
 
         tests = unittest.TestLoader().loadTestsFromNames(testfiles)

@@ -111,8 +111,7 @@ def _hexbin2int(content):
     """
     val = 0
 
-    for idx in range(len(content)):
-        c = content[idx]
+    for idx, c in enumerate(content):
         byte = ord(c)
         val += byte * ((2 ** 8) ** ((len(content) - 1) - idx))
     return val
@@ -179,9 +178,7 @@ def _unknown_key_to_type(key):
     raise RuntimeError("Unknown type for key '%s'" % key)
 
 
-def _get_converter(key, rawval, valtype):
-    ignore = key
-
+def _get_converter(_key, rawval, valtype):
     if valtype == TYPE_RAW:
         return rawval
     if valtype == TYPE_SLSTR:

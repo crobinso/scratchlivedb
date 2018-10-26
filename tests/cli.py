@@ -20,8 +20,10 @@ def _cleanup():
         for f in glob.glob(base + "*"):
             try:
                 os.unlink(f)
-            except:
+            except Exception:
                 continue
+
+
 atexit.register(_cleanup)
 
 
@@ -70,7 +72,7 @@ class Cli(unittest.TestCase):
         out = tests.clicomm(cmd)
 
         self.assertTrue("Changing timeadded:  Armored_Core/Armored_" in out)
-        self.assertTrue("Removing from DB:    Orb/Orb_-_Adv")
+        self.assertTrue("Removing from DB:    Orb/Orb_-_Adv" in out)
         self.assertTrue("Adding to DB:        Orbital/Orbital_-_In_S" in out)
         self.assertTrue("Adding to DB:        Daft_Punk/Daft_Punk_-_Tr" in out)
         self.assertTrue("Adding to DB:        Advantage/Advantage_-_Th" in out)
