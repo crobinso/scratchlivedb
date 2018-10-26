@@ -34,7 +34,7 @@ class Cli(unittest.TestCase):
         """
         Smoke test for the CLI tool
         """
-        tests.clicomm("scratchlivedb-tool %s" % basicdb)
+        tests.clicomm("scratchlivedb-tool dump %s" % basicdb)
 
     def testUnknownKeys(self):
         """
@@ -47,9 +47,9 @@ class Cli(unittest.TestCase):
         _unknowns.unknowns = {}
         # pylint: enable=protected-access
 
-        out = tests.clicomm("scratchlivedb-tool %s" % unknowndb)
+        out = tests.clicomm("scratchlivedb-tool dump %s" % unknowndb)
         self.assertTrue(
                 "Unknown keys encountered: ['tzzz', 'uzzz', 'zzzz']" in out)
 
-        out = tests.clicomm("scratchlivedb-tool --debug %s" % unknowndb)
+        out = tests.clicomm("scratchlivedb-tool --debug dump %s" % unknowndb)
         self.assertTrue("Unknown type for key 'zzzz'" in out)

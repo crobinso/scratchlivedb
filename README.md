@@ -17,8 +17,8 @@ scratchlivedb-tool
 ------------------
 
 scratchlivedb-tool is a simple tool for performing some actions on
-a Scratch Live database file. Currently all it does is parse the database
-and exit.
+a Scratch Live database file. Currently all it provides is a 'dump'
+subcommand for printing details about the database.
 
 
 Todo
@@ -45,3 +45,5 @@ Todo
 * Only tested on a linux machine
 
 * Haven't tested setup.py except for 'test' subcommand
+
+* Extend scratchlivedb-tool 'dump' with more output options
