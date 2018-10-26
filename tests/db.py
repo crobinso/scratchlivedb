@@ -66,10 +66,10 @@ class Misc(unittest.TestCase):
         db = scratchlivedb.ScratchDatabase(basicdb)
         doc = db.entries[0].__doc__
 
-        # pylint: disable=W0212
+        # pylint: disable=protected-access
         # Ignore 'Access to protected member'
         rawkeys = scratchlivedb.scratchdb._seen[:]
-        # pylint: enable=W0212
+        # pylint: enable=protected-access
 
         dockeys = []
         for line in doc.splitlines():

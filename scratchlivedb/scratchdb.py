@@ -206,19 +206,19 @@ def _set_field_helper(self, key, valtype, rawval):
     else:
         raise RuntimeError("Unknown property type %s" % valtype)
 
-    # pylint: disable=W0212
+    # pylint: disable=protected-access
     # Ignore 'Access to protected member'
     if key not in self._rawkeys:
         self._rawkeys.append(key)
     self._rawdict[key] = setval
-    # pylint: enable=W0212
+    # pylint: enable=protected-access
 
 
 def _get_field_helper(self, key, valtype):
-    # pylint: disable=W0212
+    # pylint: disable=protected-access
     # Ignore 'Access to protected member'
     rawval = self._rawdict.get(key)
-    # pylint: enable=W0212
+    # pylint: enable=protected-access
 
     if rawval is None:
         return None
