@@ -61,7 +61,8 @@ setup(
     url='https://github.com/crobinso/scratchlivedb',
 
     packages=['scratchlivedb'],
-    scripts=['scratchlivedb-tool'],
+    entry_points={
+        'console_scripts': ['scratchlivedb-tool = scratchlivedb._cli:main']},
 
     cmdclass={
         "test" : TestCommand,

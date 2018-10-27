@@ -6,9 +6,9 @@ import StringIO
 
 def clicomm(argv, expectfail=False):
     """
-    Run bin/bugzilla.main() directly with passed argv
+    Run cli main() directly with passed argv
     """
-    from tests.scriptimports import scratchlivedbtool
+    from scratchlivedb import _cli
 
     argv = shlex.split(argv)
 
@@ -27,7 +27,7 @@ def clicomm(argv, expectfail=False):
             print " ".join(argv)
             print
 
-            ret = scratchlivedbtool.main()
+            ret = _cli.main()
         except SystemExit, sys_e:
             ret = sys_e.code
 

@@ -1,1 +1,0 @@
-../../scratchlivedb-tool
