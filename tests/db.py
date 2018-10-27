@@ -119,7 +119,10 @@ class Misc(unittest.TestCase):
 
         newentry = empty.make_entry("foo/some/file/path")
         newentry.tracktitle = "Hey a track title"
+        newentry.inttimeadded = 1335865095
+        newentry.inttimemodified = 1335865095
         empty.entries.append(newentry)
 
-        self.assertTrue(empty.get_final_content(),
-                        file("tests/data/appended.db").read())
+        final = empty.get_final_content()
+        appended_db = file("tests/data/appended.db").read()
+        self.assertEqual(final, appended_db)
