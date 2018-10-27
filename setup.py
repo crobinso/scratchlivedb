@@ -5,7 +5,8 @@ import os
 import sys
 import unittest
 
-from distutils.core import setup, Command
+from distutils.core import Command
+from setuptools import setup
 
 
 class TestCommand(Command):
@@ -57,7 +58,10 @@ setup(
     description='Library for manipulating Scratch Live DB/crates',
     author='Cole Robinson',
     license="GPLv2+",
+    url='https://github.com/crobinso/scratchlivedb',
+
     packages=['scratchlivedb'],
+    scripts=['scratchlivedb-tool'],
 
     cmdclass={
         "test" : TestCommand,

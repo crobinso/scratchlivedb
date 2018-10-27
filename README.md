@@ -44,6 +44,4 @@ Todo
 
 * Only tested on a linux machine
 
-* Haven't tested setup.py except for 'test' subcommand
-
 * Extend scratchlivedb-tool 'dump' with more output options
