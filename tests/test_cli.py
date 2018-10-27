@@ -48,8 +48,7 @@ class Cli(unittest.TestCase):
         # pylint: enable=protected-access
 
         out = tests.clicomm("scratchlivedb-tool dump %s" % unknowndb)
-        self.assertTrue(
-                "Unknown keys encountered: ['tzzz', 'uzzz', 'zzzz']" in out)
+        assert "Unknown keys encountered: ['tzzz', 'uzzz', 'zzzz']" in out
 
         out = tests.clicomm("scratchlivedb-tool --debug dump %s" % unknowndb)
-        self.assertTrue("Unknown type for key 'zzzz'" in out)
+        assert "Unknown type for key 'zzzz'" in out

@@ -29,7 +29,7 @@ class Misc(unittest.TestCase):
         Parse and resave the DB, make sure it doesn't change
         """
         db = scratchlivedb.ScratchDatabase(basicdb)
-        self.assertTrue(db.get_final_content() == file(basicdb).read())
+        assert db.get_final_content() == file(basicdb).read()
 
     def testNoChangeProperties(self):
         """
@@ -44,7 +44,7 @@ class Misc(unittest.TestCase):
                     continue
                 setattr(entry, propname, val)
 
-        self.assertTrue(db.get_final_content() == file(basicdb).read())
+        assert db.get_final_content() == file(basicdb).read()
 
     def testEmptyDB(self):
         """
@@ -55,8 +55,8 @@ class Misc(unittest.TestCase):
         rawempty = file(emptydb).read()
 
         db.entries = []
-        self.assertTrue(db.get_final_content() == rawempty)
-        self.assertTrue(empty.get_final_content() == rawempty)
+        assert db.get_final_content() == rawempty
+        assert empty.get_final_content() == rawempty
 
     def testDBDocString(self):
         """
@@ -80,7 +80,7 @@ class Misc(unittest.TestCase):
 
         dockeys.sort()
         rawkeys.sort()
-        self.assertEqual(dockeys, rawkeys)
+        assert dockeys == rawkeys
 
     def testNonAscii(self):
         """
@@ -96,16 +96,16 @@ class Misc(unittest.TestCase):
         rawname = """\x00U\x00s\x00e\x00r\x00s\x00/\x00p\x00o\x00w\x00e\x00r\x00m\x00a\x00c\x00/\x00M\x00u\x00s\x00i\x00c\x00/\x00J\x00\xee\x00c\x00k\x00s\x00o\x00n\x00s\x00 \x00-\x00#\x00-\x00 \x00B\x00l\x00\xe9\x00m\x00e\x00 \x00I\x00t\x00 \x00\xfc\x00n\x00 \x00t\x00h\x00e\x00 \x00B\x00o\x00o\x00g\x00i\x00e\x00 \x00(\x001\x002\x00"\x00 \x00S\x00i\x00n\x00g\x00l\x00e\x00 \x00V\x00e\x00r\x00s\x00i\x00o\x00n\x00)\x00 \x00k\x00o\x00p\x00i\x00e\x00.\x00m\x00p\x003"""
 
         entry = empty.make_entry(name)
-        self.assertEquals(entry.filebase, name)
-        self.assertEquals(entry._rawdict["pfil"], rawname)
+        assert entry.filebase == name
+        assert entry._rawdict["pfil"] == rawname
 
         # Multibyte unicode test
         name = """Users/powermac/Music/Jîcksons -#- Bléme It ün the Ā and ā. (ïé´´êøo12" Single Version) kopie.mp3"""
         rawname = """\x00U\x00s\x00e\x00r\x00s\x00/\x00p\x00o\x00w\x00e\x00r\x00m\x00a\x00c\x00/\x00M\x00u\x00s\x00i\x00c\x00/\x00J\x00\xee\x00c\x00k\x00s\x00o\x00n\x00s\x00 \x00-\x00#\x00-\x00 \x00B\x00l\x00\xe9\x00m\x00e\x00 \x00I\x00t\x00 \x00\xfc\x00n\x00 \x00t\x00h\x00e\x00 \x01\x00\x00 \x00a\x00n\x00d\x00 \x01\x01\x00.\x00 \x00(\x00\xef\x00\xe9\x00\xb4\x00\xb4\x00\xea\x00\xf8\x00o\x001\x002\x00"\x00 \x00S\x00i\x00n\x00g\x00l\x00e\x00 \x00V\x00e\x00r\x00s\x00i\x00o\x00n\x00)\x00 \x00k\x00o\x00p\x00i\x00e\x00.\x00m\x00p\x003"""
 
         entry = empty.make_entry(name)
-        self.assertEquals(entry.filebase, name)
-        self.assertEquals(entry._rawdict["pfil"], rawname)
+        assert entry.filebase == name
+        assert entry._rawdict["pfil"] == rawname
 
     def testAddToDB(self):
         """
@@ -125,4 +125,4 @@ class Misc(unittest.TestCase):
 
         final = empty.get_final_content()
         appended_db = file("tests/data/appended.db").read()
-        self.assertEqual(final, appended_db)
+        assert final == appended_db
