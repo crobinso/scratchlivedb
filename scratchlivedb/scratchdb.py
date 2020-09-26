@@ -111,13 +111,7 @@ def _str_to_slstr(orig):
     """
     Convert the passed string 'orig' to serato format
     """
-    new = b""
-    for c in orig:
-        hexstr = _int2hexbin(ord(c)).lstrip(b"\x00")
-        if len(hexstr) == 1:
-            hexstr = b"\x00" + hexstr
-        new += hexstr
-    return new
+    return orig.encode("utf-16-be")
 
 
 def _parse_slstr(bytedata):
@@ -125,13 +119,7 @@ def _parse_slstr(bytedata):
     Convert serato string format to a regular string. The format is
     an array of 32bit integers representing unicode code points.
     """
-    ret = ""
-    idx = 0
-    while idx < len(bytedata):
-        cstr = bytedata[idx:(idx + 2)]
-        ret += chr(_hexbin2int(cstr))
-        idx += 2
-    return ret
+    return bytedata.decode("utf-16-be")
 
 
 def _match_string(content, matchstr):
@@ -148,8 +136,10 @@ def _match_string(content, matchstr):
 # Class property builders #
 ###########################
 
+# TYPE_RAW is for unknown entries, store the value as raw bytes
+# in our dictionary
 (TYPE_RAW,
- TYPE_SLSTR,
+ TYPE_UTF16,
  TYPE_INT1,
  TYPE_INT4,
  TYPE_CHAR) = list(range(1, 6))
@@ -163,14 +153,14 @@ def _unknown_key_to_type(key):
     if key.startswith("s"):
         return TYPE_CHAR
     if key.startswith("p") or key.startswith("t"):
-        return TYPE_RAW
+        return TYPE_UTF16
     raise RuntimeError("Unknown type for key '%s'" % key)
 
 
 def _get_converter(_key, rawval, valtype):
     if valtype == TYPE_RAW:
         return rawval
-    if valtype == TYPE_SLSTR:
+    if valtype == TYPE_UTF16:
         return _parse_slstr(rawval)
     if valtype == TYPE_INT1:
         return ord(rawval)
@@ -184,7 +174,7 @@ def _get_converter(_key, rawval, valtype):
 def _set_field_helper(self, key, valtype, rawval):
     if valtype == TYPE_RAW:
         setval = rawval
-    elif valtype == TYPE_SLSTR:
+    elif valtype == TYPE_UTF16:
         setval = _str_to_slstr(rawval)
     elif valtype == TYPE_INT4:
         setval = _int2hexbin(int(rawval))
@@ -273,7 +263,7 @@ class _ScratchFileEntry(object):
     bcrt :  Track is corrupt/has invalid audio data
     bmis :  Track is missing
 
-    # path fields, stored as strings
+    # path fields, stored as utf-16-be strings
     pdir :  file directory
     pfil :  file name for database file
     ptrk :  file name for crate file
@@ -344,29 +334,29 @@ class _ScratchFileEntry(object):
             raise RuntimeError("content or filename must be specified")
 
 
-    filedir             = _property_helper("pdir", TYPE_SLSTR)
-    filetrack           = _property_helper("ptrk", TYPE_SLSTR)
-    filebase            = _property_helper("pfil", TYPE_SLSTR)
+    filedir             = _property_helper("pdir", TYPE_UTF16)
+    filetrack           = _property_helper("ptrk", TYPE_UTF16)
+    filebase            = _property_helper("pfil", TYPE_UTF16)
 
-    trackadded          = _property_helper("tadd", TYPE_SLSTR)
-    trackartist         = _property_helper("tart", TYPE_SLSTR)
-    trackalbum          = _property_helper("talb", TYPE_SLSTR)
-    trackbitrate        = _property_helper("tbit", TYPE_SLSTR)
-    trackbpm            = _property_helper("tbpm", TYPE_SLSTR)
-    trackcomposer       = _property_helper("tcmp", TYPE_SLSTR)
-    trackcomment        = _property_helper("tcom", TYPE_SLSTR)
-    trackcorrupt        = _property_helper("tcor", TYPE_SLSTR)
-    trackgenre          = _property_helper("tgen", TYPE_SLSTR)
-    trackgrouping       = _property_helper("tgrp", TYPE_SLSTR)
-    trackkey            = _property_helper("tkey", TYPE_SLSTR)
-    tracklabel          = _property_helper("tlbl", TYPE_SLSTR)
-    tracklength         = _property_helper("tlen", TYPE_SLSTR)
-    trackremixer        = _property_helper("trmx", TYPE_SLSTR)
-    tracktitle          = _property_helper("tsng", TYPE_SLSTR)
-    tracksize           = _property_helper("tsiz", TYPE_SLSTR)
-    tracksamplerate     = _property_helper("tsmp", TYPE_SLSTR)
-    tracktype           = _property_helper("ttyp", TYPE_SLSTR)
-    trackyear           = _property_helper("ttyr", TYPE_SLSTR)
+    trackadded          = _property_helper("tadd", TYPE_UTF16)
+    trackartist         = _property_helper("tart", TYPE_UTF16)
+    trackalbum          = _property_helper("talb", TYPE_UTF16)
+    trackbitrate        = _property_helper("tbit", TYPE_UTF16)
+    trackbpm            = _property_helper("tbpm", TYPE_UTF16)
+    trackcomposer       = _property_helper("tcmp", TYPE_UTF16)
+    trackcomment        = _property_helper("tcom", TYPE_UTF16)
+    trackcorrupt        = _property_helper("tcor", TYPE_UTF16)
+    trackgenre          = _property_helper("tgen", TYPE_UTF16)
+    trackgrouping       = _property_helper("tgrp", TYPE_UTF16)
+    trackkey            = _property_helper("tkey", TYPE_UTF16)
+    tracklabel          = _property_helper("tlbl", TYPE_UTF16)
+    tracklength         = _property_helper("tlen", TYPE_UTF16)
+    trackremixer        = _property_helper("trmx", TYPE_UTF16)
+    tracktitle          = _property_helper("tsng", TYPE_UTF16)
+    tracksize           = _property_helper("tsiz", TYPE_UTF16)
+    tracksamplerate     = _property_helper("tsmp", TYPE_UTF16)
+    tracktype           = _property_helper("ttyp", TYPE_UTF16)
+    trackyear           = _property_helper("ttyr", TYPE_UTF16)
 
     boolmissing         = _property_helper("bmis", TYPE_INT1)
     boolcorrupt         = _property_helper("bcrt", TYPE_INT1)
