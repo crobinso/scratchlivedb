@@ -8,15 +8,6 @@ log = logging.getLogger("scratchlivedb")
 log.setLevel(logging.DEBUG)
 
 
-###################
-# Utility methods #
-###################
-
-def fail(msg):
-    print("ERROR: %s" % msg, file=sys.stderr)
-    sys.exit(1)
-
-
 ######################
 # Functional helpers #
 ######################

@@ -128,7 +128,8 @@ def _match_string(content, matchstr):
     """
     readval = content.read(len(matchstr))
     if readval != matchstr:
-        raise ScratchParseError("Didn't find expected string "
+        raise ScratchParseError(  # pragma: no cover
+                "Didn't find expected string "
                 "'%s', found '%s'" % (matchstr, readval))
 
 
@@ -148,7 +149,7 @@ def _unknown_key_to_type(key):
     if key.startswith("b"):
         return TYPE_INT1
     if key.startswith("s"):
-        return TYPE_CHAR
+        return TYPE_CHAR  # pragma: no cover
     if key.startswith("p") or key.startswith("t"):
         return TYPE_UTF16
     raise RuntimeError("Unknown type for key '%s'" % key)
@@ -163,7 +164,8 @@ def _get_converter(_key, rawval, valtype):
         return _hexbin2int(rawval)
     if valtype == TYPE_CHAR:
         return _hexbin2int(rawval)
-    raise RuntimeError("Unknown property type %s" % valtype)
+    raise RuntimeError(  # pragma: no cover
+            "Unknown property type %s" % valtype)
 
 
 def _set_field_helper(self, key, valtype, rawval):
@@ -176,7 +178,8 @@ def _set_field_helper(self, key, valtype, rawval):
     elif valtype == TYPE_INT1:
         setval = _int2hexbin(int(rawval))[-1:]
     else:
-        raise RuntimeError("Unknown property type %s" % valtype)
+        raise RuntimeError(  # pragma: no cover
+                "Unknown property type %s" % valtype)
 
     # pylint: disable=protected-access
     # Ignore 'Access to protected member'
@@ -225,7 +228,8 @@ class _ScratchFileHeader(object):
 
     def _parse(self, content):
         if _parse_cstring(content) != b"vrsn":
-            raise ScratchParseError("Header did not have expected prefix")
+            raise ScratchParseError(  # pragma: no cover
+                    "Header did not have expected prefix")
         # Strip out next \0
         _parse_cstring(content)
 
@@ -324,7 +328,8 @@ class _ScratchFileEntry(object):
         elif filename is not None:
             self._set_stub_from_file(filename)
         else:
-            raise RuntimeError("content or filename must be specified")
+            raise RuntimeError(  # pragma: no cover
+                    "content or filename must be specified")
 
 
     filedir             = _property_helper("pdir", TYPE_UTF16)
@@ -381,8 +386,9 @@ class _ScratchFileEntry(object):
             length = _hexbin2int(rawlen)
             data = c.read(length)
             if len(data) != length:
-                raise RuntimeError("didn't read expected data length "
-                                   "(%s != %s)" % (len(data), length))
+                raise RuntimeError(  # pragma: no cover
+                        "didn't read expected data length "
+                        "(%s != %s)" % (len(data), length))
             return name.decode("utf-8"), data
 
         self._name, self._rawdata = parse_field(content)
@@ -398,7 +404,8 @@ class _ScratchFileEntry(object):
             name, data = parse_field(datastream)
 
             if name in self._rawdict:
-                raise RuntimeError("already found field for '%s'" % name)
+                raise RuntimeError(  # pragma: no cover
+                        "already found field for '%s'" % name)
 
             if name not in _seen:
                 unknowns.append((name, data))
