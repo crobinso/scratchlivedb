@@ -20,13 +20,13 @@ log.addHandler(logging.NullHandler())
 _unknowns = UnknownEntryTracker()
 
 
-def _make_unknown_str(entry, maxprint=None, dups=1):
+def _make_unknown_str(entry):
     """
     Build a string listing some of the seen values which should
     help determine what the key actually does
     """
-    if maxprint is None:
-        maxprint = len(entry.values)
+    maxprint = 20
+    dups = 20
     keys = list(entry.values.keys())[:maxprint]
 
     try:
@@ -67,7 +67,7 @@ def _log_unknowns():
         log.warning("See debug output for details")
 
     for key in keys:
-        log.debug(_make_unknown_str(_unknowns.unknowns[key], 20, dups=20))
+        log.debug(_make_unknown_str(_unknowns.unknowns[key]))
 
 
 #####################
