@@ -2,9 +2,6 @@
 import atexit
 import glob
 import os
-import unittest
-
-import tests
 
 datadir = os.path.join(os.path.dirname(__file__), "data")
 basicdb = os.path.join(datadir, "basic.db")
@@ -24,31 +21,26 @@ def _cleanup():
 atexit.register(_cleanup)
 
 
-class Cli(unittest.TestCase):
+def test_cliBasic(run_cli):
     """
-    Tests for running scratchlivedb-tool
+    Smoke test for the CLI tool
     """
-    maxDiff = None
+    run_cli("scratchlivedb-tool dump %s" % basicdb)
 
-    def testBasic(self):
-        """
-        Smoke test for the CLI tool
-        """
-        tests.clicomm("scratchlivedb-tool dump %s" % basicdb)
 
-    def testUnknownKeys(self):
-        """
-        Make sure unknown key detection works
-        """
-        # Prevent unfinished crate support from interfering
-        # pylint: disable=protected-access
-        # Ignore 'Access to protected member'
-        from scratchlivedb.scratchdb import _unknowns
-        _unknowns.unknowns = {}
-        # pylint: enable=protected-access
+def test_cliUnknownKeys(run_cli):
+    """
+    Make sure unknown key detection works
+    """
+    # Prevent unfinished crate support from interfering
+    # pylint: disable=protected-access
+    # Ignore 'Access to protected member'
+    from scratchlivedb.scratchdb import _unknowns
+    _unknowns.unknowns = {}
+    # pylint: enable=protected-access
 
-        out = tests.clicomm("scratchlivedb-tool dump %s" % unknowndb)
-        assert "Unknown keys encountered: ['tzzz', 'uzzz', 'zzzz']" in out
+    out = run_cli("scratchlivedb-tool dump %s" % unknowndb)
+    assert "Unknown keys encountered: ['tzzz', 'uzzz', 'zzzz']" in out
 
-        out = tests.clicomm("scratchlivedb-tool --debug dump %s" % unknowndb)
-        assert "Unknown type for key 'zzzz'" in out
+    out = run_cli("scratchlivedb-tool --debug dump %s" % unknowndb)
+    assert "Unknown type for key 'zzzz'" in out

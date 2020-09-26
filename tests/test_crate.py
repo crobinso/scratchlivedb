@@ -1,6 +1,5 @@
 
 import os
-import unittest
 
 import scratchlivedb
 
@@ -9,15 +8,9 @@ testcratefile = os.path.join(datadir, "test.crate")
 emptydb = os.path.join(datadir, "empty.db")
 
 
-class Misc(unittest.TestCase):
+def test_crateNoChange():
     """
-    Misc collection of crate tests
+    Parse and resave the crate, make sure it doesn't change
     """
-    maxDiff = None
-
-    def testNoChange(self):
-        """
-        Parse and resave the crate, make sure it doesn't change
-        """
-        db = scratchlivedb.ScratchCrate(testcratefile)
-        assert db.get_final_content() == open(testcratefile, "rb").read()
+    db = scratchlivedb.ScratchCrate(testcratefile)
+    assert db.get_final_content() == open(testcratefile, "rb").read()
