@@ -20,4 +20,4 @@ class Misc(unittest.TestCase):
         Parse and resave the crate, make sure it doesn't change
         """
         db = scratchlivedb.ScratchCrate(testcratefile)
-        assert db.get_final_content() == file(testcratefile).read()
+        assert db.get_final_content() == open(testcratefile, "rb").read()

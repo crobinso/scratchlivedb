@@ -1,7 +1,7 @@
 
 import shlex
 import sys
-import StringIO
+import io
 
 
 def clicomm(argv, expectfail=False):
@@ -17,18 +17,18 @@ def clicomm(argv, expectfail=False):
     oldstdin = sys.stdin
     oldargv = sys.argv
     try:
-        out = StringIO.StringIO()
+        out = io.StringIO()
         sys.stdout = out
         sys.stderr = out
         sys.argv = argv
 
         ret = 0
         try:
-            print " ".join(argv)
-            print
+            print(" ".join(argv))
+            print()
 
             ret = _cli.main()
-        except SystemExit, sys_e:
+        except SystemExit as sys_e:
             ret = sys_e.code
 
         outt = out.getvalue()

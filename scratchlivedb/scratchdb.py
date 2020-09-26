@@ -27,11 +27,11 @@ def _make_unknown_str(entry, maxprint=None, dups=1):
     """
     if maxprint is None:
         maxprint = len(entry.values)
-    keys = entry.values.keys()[:maxprint]
+    keys = list(entry.values.keys())[:maxprint]
 
     try:
         valtype = _unknown_key_to_type(entry.key)
-    except Exception, e:
+    except Exception as e:
         log.debug(e)
         valtype = None
 
@@ -59,12 +59,12 @@ def _make_unknown_str(entry, maxprint=None, dups=1):
 
 
 def _log_unknowns():
-    keys = _unknowns.unknowns.keys()
+    keys = list(_unknowns.unknowns.keys())
     keys.sort()
 
     if keys:
-        log.warn("Unknown keys encountered: %s", keys)
-        log.warn("See debug output for details")
+        log.warning("Unknown keys encountered: %s", keys)
+        log.warning("See debug output for details")
 
     for key in keys:
         log.debug(_make_unknown_str(_unknowns.unknowns[key], 20, dups=20))
@@ -79,10 +79,10 @@ def _parse_cstring(content):
     From the passed string, find the nearest \0 byte and return everything
     before it
     """
-    ret = ""
+    ret = b""
     while True:
-        char  = content.read(1)
-        if char == '\0':
+        char = content.read(1)
+        if char == b'\0':
             break
         ret += char
 
@@ -93,56 +93,45 @@ def _int2hexbin(origint):
     """
     Convert the passed integer into a 4 byte binary hex string
     """
-    hexstr = "%08X" % origint
-    ret = ""
-
-    for idx in (0, 2, 4, 6):
-        idx = idx
-        bytestr = hexstr[idx]
-        bytestr += hexstr[idx + 1]
-
-        ret += chr(int(bytestr, 16))
-    return ret
+    return origint.to_bytes(4, "big")
 
 
-def _hexbin2int(content):
+def _hexbin2int(bytedata):
     """
     Convert the passed hex binary string into its interger value
     """
     val = 0
 
-    for idx, c in enumerate(content):
-        byte = ord(c)
-        val += byte * ((2 ** 8) ** ((len(content) - 1) - idx))
+    for idx, byte in enumerate(bytedata):
+        val += byte * ((2 ** 8) ** ((len(bytedata) - 1) - idx))
     return val
 
 
-def _make_slstr(orig):
+def _str_to_slstr(orig):
     """
     Convert the passed string 'orig' to serato format
     """
-    ustr = orig.decode("utf-8")
-    new = ""
-    for c in ustr:
-        hexstr = _int2hexbin(ord(c)).lstrip("\x00")
+    new = b""
+    for c in orig:
+        hexstr = _int2hexbin(ord(c)).lstrip(b"\x00")
         if len(hexstr) == 1:
-            hexstr = "\x00" + hexstr
+            hexstr = b"\x00" + hexstr
         new += hexstr
     return new
 
 
-def _parse_slstr(data):
+def _parse_slstr(bytedata):
     """
     Convert serato string format to a regular string. The format is
     an array of 32bit integers representing unicode code points.
     """
-    ret = unicode()
+    ret = ""
     idx = 0
-    while idx < len(data):
-        cstr = data[idx:(idx + 2)]
-        ret += unichr(_hexbin2int(cstr))
+    while idx < len(bytedata):
+        cstr = bytedata[idx:(idx + 2)]
+        ret += chr(_hexbin2int(cstr))
         idx += 2
-    return ret.encode("utf-8")
+    return ret
 
 
 def _match_string(content, matchstr):
@@ -163,7 +152,7 @@ def _match_string(content, matchstr):
  TYPE_SLSTR,
  TYPE_INT1,
  TYPE_INT4,
- TYPE_CHAR) = range(1, 6)
+ TYPE_CHAR) = list(range(1, 6))
 
 
 def _unknown_key_to_type(key):
@@ -196,13 +185,13 @@ def _set_field_helper(self, key, valtype, rawval):
     if valtype == TYPE_RAW:
         setval = rawval
     elif valtype == TYPE_SLSTR:
-        setval = _make_slstr(rawval)
-    elif valtype == TYPE_INT1:
-        setval = chr(rawval)
+        setval = _str_to_slstr(rawval)
     elif valtype == TYPE_INT4:
         setval = _int2hexbin(int(rawval))
     elif valtype == TYPE_CHAR:
         setval = _int2hexbin(int(rawval))[-2:]
+    elif valtype == TYPE_INT1:
+        setval = _int2hexbin(int(rawval))[-1:]
     else:
         raise RuntimeError("Unknown property type %s" % valtype)
 
@@ -252,17 +241,17 @@ class _ScratchFileHeader(object):
         self._parse(content)
 
     def _parse(self, content):
-        if _parse_cstring(content) != "vrsn":
+        if _parse_cstring(content) != b"vrsn":
             raise ScratchParseError("Header did not have expected prefix")
         # Strip out next \0
         _parse_cstring(content)
 
-        _match_string(content, _make_slstr(self.version))
-        _match_string(content, _make_slstr(self.type))
+        _match_string(content, _str_to_slstr(self.version))
+        _match_string(content, _str_to_slstr(self.type))
 
     def get_final_content(self):
-        ret = "vrsn\0\0%s%s" % (_make_slstr(self.version),
-                                _make_slstr(self.type))
+        ret = b"vrsn\0\0%s%s" % (_str_to_slstr(self.version),
+                                 _str_to_slstr(self.type))
         return ret
 
 
@@ -411,7 +400,7 @@ class _ScratchFileEntry(object):
             if len(data) != length:
                 raise RuntimeError("didn't read expected data length "
                                    "(%s != %s)" % (len(data), length))
-            return name, data
+            return name.decode("utf-8"), data
 
         self._name, self._rawdata = parse_field(content)
         if self._name != "otrk":
@@ -420,7 +409,7 @@ class _ScratchFileEntry(object):
         datastream = io.BufferedReader(io.BytesIO(self._rawdata))
         unknowns = []
         while True:
-            if datastream.peek(1) == "":
+            if not datastream.peek(1):
                 break
 
             name, data = parse_field(datastream)
@@ -446,7 +435,7 @@ class _ScratchFileEntry(object):
         extension_list = ["mp3"]
         ext = os.path.splitext(filename)[1].lower().strip(".")
         if ext not in extension_list:
-            log.warn("%s extension '%s' not in tested extension list %s",
+            log.warning("%s extension '%s' not in tested extension list %s",
                      filename, ext, extension_list)
             if not ext:
                 log.debug("No file extension, assuming mp3")
@@ -466,12 +455,19 @@ class _ScratchFileEntry(object):
     ##############
 
     def get_final_content(self):
-        field_content = ""
+        field_content = b""
         for key in self._rawkeys:
             data = self._rawdict[key]
-            field_content += key + _int2hexbin(len(data)) + data
+            field_content += key.encode("utf-8")
+            print(key, type(data))
+            field_content += _int2hexbin(len(data))
+            field_content += data
 
-        return self._name + _int2hexbin(len(field_content)) + field_content
+        ret = b""
+        ret += self._name.encode("utf-8")
+        ret += _int2hexbin(len(field_content))
+        ret += field_content
+        return ret
 
 
 class _ScratchFile(object):
@@ -485,20 +481,21 @@ class _ScratchFile(object):
 
     def __init__(self, filename, version, ftype):
         self.filename = filename
-        self._content = io.BufferedReader(io.BytesIO(file(filename).read()))
+        self._content = io.BufferedReader(
+                io.BytesIO(open(filename, "rb").read()))
 
         self.header = _ScratchFileHeader(self._content, version, ftype)
         self.entries = self._parse_entries()
 
         try:
             _log_unknowns()
-        except Exception, e:
+        except Exception as e:
             log.debug("Error printing unknown values: %s", e)
 
     def _parse_entries(self):
         entries = []
         while True:
-            if self._content.peek(1) == "":
+            if not self._content.peek(1):
                 break
 
             entry = _ScratchFileEntry(content=self._content)
@@ -507,11 +504,14 @@ class _ScratchFile(object):
         return entries
 
     def get_final_content(self):
-        entry_content = ""
+        entry_content = b""
         for entry in self.entries:
             entry_content += entry.get_final_content()
 
-        return self.header.get_final_content() + entry_content
+        ret = b""
+        ret += self.header.get_final_content()
+        ret += entry_content
+        return ret
 
 
 ##############

@@ -13,7 +13,7 @@ log.setLevel(logging.DEBUG)
 ###################
 
 def fail(msg):
-    print >> sys.stderr, "ERROR: %s" % msg
+    print("ERROR: %s" % msg, file=sys.stderr)
     sys.exit(1)
 
 
@@ -66,6 +66,6 @@ def main():
 
     if options.command == "dump":
         for entry in db.entries:
-            print entry.filebase
+            print(entry.filebase)
 
     return 0
