@@ -136,13 +136,10 @@ def _match_string(content, matchstr):
 # Class property builders #
 ###########################
 
-# TYPE_RAW is for unknown entries, store the value as raw bytes
-# in our dictionary
-(TYPE_RAW,
- TYPE_UTF16,
+(TYPE_UTF16,
  TYPE_INT1,
  TYPE_INT4,
- TYPE_CHAR) = list(range(1, 6))
+ TYPE_CHAR) = list(range(1, 5))
 
 
 def _unknown_key_to_type(key):
@@ -158,8 +155,6 @@ def _unknown_key_to_type(key):
 
 
 def _get_converter(_key, rawval, valtype):
-    if valtype == TYPE_RAW:
-        return rawval
     if valtype == TYPE_UTF16:
         return _parse_slstr(rawval)
     if valtype == TYPE_INT1:
@@ -172,9 +167,7 @@ def _get_converter(_key, rawval, valtype):
 
 
 def _set_field_helper(self, key, valtype, rawval):
-    if valtype == TYPE_RAW:
-        setval = rawval
-    elif valtype == TYPE_UTF16:
+    if valtype == TYPE_UTF16:
         setval = _str_to_slstr(rawval)
     elif valtype == TYPE_INT4:
         setval = _int2hexbin(int(rawval))
