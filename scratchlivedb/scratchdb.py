@@ -449,7 +449,6 @@ class _ScratchFileEntry(object):
         for key in self._rawkeys:
             data = self._rawdict[key]
             field_content += key.encode("utf-8")
-            print(key, type(data))
             field_content += _int2hexbin(len(data))
             field_content += data
 
